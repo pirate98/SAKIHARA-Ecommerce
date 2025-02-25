@@ -15,6 +15,7 @@ const FieldTextInputComponent = props => {
     customErrorText,
     id,
     label,
+    requiredLabel,
     input,
     meta,
     onUnmount,
@@ -79,7 +80,7 @@ const FieldTextInputComponent = props => {
   const classes = classNames(rootClassName || css.root, className);
   return (
     <div className={classes}>
-      {label ? <label htmlFor={id}>{label}</label> : null}
+      {label ? <label htmlFor={id}>{label}{requiredLabel && <span style={{background: 'red', color: 'white', padding: "2px 5px", fontSize: 11, marginLeft: 3}}>{requiredLabel}</span>}</label> : null}
       {isTextarea ? <ExpandingTextarea {...inputProps} /> : <input {...inputProps} />}
       {hideErrorMessage ? null : <ValidationError fieldMeta={fieldMeta} />}
     </div>

@@ -121,6 +121,9 @@ const SignupFormComponent = props => (
                 label={intl.formatMessage({
                   id: 'SignupForm.emailLabel',
                 })}
+                requiredLabel={intl.formatMessage({
+                  id: 'SignupForm.requiredLabel',
+                })}
                 placeholder={intl.formatMessage({
                   id: 'SignupForm.emailPlaceholder',
                 })}
@@ -134,6 +137,9 @@ const SignupFormComponent = props => (
                 autoComplete="given-name"
                 label={intl.formatMessage({
                   id: 'SignupForm.firstNameLabel',
+                })}
+                requiredLabel={intl.formatMessage({
+                  id: 'SignupForm.requiredLabel',
                 })}
                 placeholder={intl.formatMessage({
                   id: 'SignupForm.firstNamePlaceholder',
@@ -152,6 +158,9 @@ const SignupFormComponent = props => (
                 autoComplete="family-name"
                 label={intl.formatMessage({
                   id: 'SignupForm.lastNameLabel',
+                })}
+                requiredLabel={intl.formatMessage({
+                  id: 'SignupForm.requiredLabel',
                 })}
                 placeholder={intl.formatMessage({
                   id: 'SignupForm.lastNamePlaceholder',
@@ -178,6 +187,9 @@ const SignupFormComponent = props => (
                 autoComplete="new-password"
                 label={intl.formatMessage({
                   id: 'SignupForm.passwordLabel',
+                })}
+                requiredLabel={intl.formatMessage({
+                  id: 'SignupForm.requiredLabel',
                 })}
                 placeholder={intl.formatMessage({
                   id: 'SignupForm.passwordPlaceholder',
