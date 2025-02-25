@@ -122,7 +122,7 @@ export const SocialLoginButtonsMaybe = props => {
       {!showGoogleLogin ? (
         <div className={css.socialButtonWrapper}>
           {/* <SocialLoginButton onClick={() => authWithGoogle()}> */}
-          <SocialLoginButton onClick={() => {alert('Need to add client ID from identity provider')}}>
+          <SocialLoginButton onClick={() => { alert('Need to add client ID from identity provider') }}>
             <span className={css.buttonIcon}>{GoogleLogo}</span>
             {isLogin ? (
               <FormattedMessage id="AuthenticationPage.loginWithGoogle" />
@@ -236,6 +236,11 @@ export const AuthenticationForms = props => {
     history.push(signupPath);
   }
 
+  const handleNavigateLogin = () => {
+    const loginPath = pathByRouteName('LoginPage', routeConfiguration);
+    history.push(loginPath);
+  }
+
   const loginErrorMessage = (
     <div className={css.error}>
       <FormattedMessage id="AuthenticationPage.loginFailed" />
@@ -283,15 +288,22 @@ export const AuthenticationForms = props => {
           <LoginForm className={css.loginForm} onSubmit={submitLogin} inProgress={authInProgress} />
         </div>
       ) : (
-        <SignupForm
-          className={css.signupForm}
-          onSubmit={handleSubmitSignup}
-          inProgress={authInProgress}
-          termsAndConditions={termsAndConditions}
-          preselectedUserType={preselectedUserType}
-          userTypes={userTypes}
-          userFields={userFields}
-        />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <label style={{ fontSize: "16px" }}>
+            すでにアカウントをお持ちの方はこちら
+          </label>
+          <Button onClick={handleNavigateLogin}>ログインページ</Button>
+          <hr style={{ color: 'black', width: "100%", marginTop: "30px" }} />
+          <SignupForm
+            className={css.signupForm}
+            onSubmit={handleSubmitSignup}
+            inProgress={authInProgress}
+            termsAndConditions={termsAndConditions}
+            preselectedUserType={preselectedUserType}
+            userTypes={userTypes}
+            userFields={userFields}
+          />
+        </div>
       )}
 
       <SocialLoginButtonsMaybe
@@ -662,7 +674,7 @@ export const AuthenticationPageComponent = props => {
       // topbar={<TopbarContainer className={topbarClasses} />}
       // footer={<FooterContainer />}
       >
-        <div style={{width: "100%", display: "flex", justifyContent: "center", background: "#f5f5f5"}}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", background: "#f5f5f5" }}>
           <LinkedLogo />
         </div>
         <ResponsiveBackgroundImageContainer
@@ -673,7 +685,7 @@ export const AuthenticationPageComponent = props => {
           sizes="100%"
           useOverlay
         >
-          
+
           {showEmailVerification ? (
             <EmailVerificationInfo
               name={user.attributes.profile.firstName}

@@ -94,6 +94,7 @@
   whole form correctly.  */
   flex-grow: 0;
   flex-basis: 340px;
+  width: 100%;
 
   @media (--viewportMedium) {
     flex-basis: 330px;
