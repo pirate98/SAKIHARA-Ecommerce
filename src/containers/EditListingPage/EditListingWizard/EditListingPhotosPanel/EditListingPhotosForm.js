@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ARRAY_ERROR } from 'final-form';
 import { Form as FinalForm, Field } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
 import { FieldArray } from 'react-final-form-arrays';
 import isEqual from 'lodash/isEqual';
+import omit from 'lodash/omit';
 import classNames from 'classnames';
 
 // Import configs and util modules
@@ -11,9 +12,11 @@ import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { propTypes } from '../../../../util/types';
 import { nonEmptyArray, composeValidators } from '../../../../util/validators';
 import { isUploadImageOverLimitError } from '../../../../util/errors';
+import { getExtensionFromUrl } from '../../../../util/urlHelpers';
 
 // Import shared components
 import { Button, Form, AspectRatioWrapper } from '../../../../components';
+import { default as RemoveVideoButton } from '../../../../components/AddImages/RemoveImageButton';
 
 // Import modules from this directory
 import ListingImage from './ListingImage';
@@ -130,14 +133,27 @@ const FieldListingImage = props => {
  * @param {Function} props.onImageUpload - The image upload function
  * @param {Function} props.onRemoveImage - The remove image function
  * @param {Object} props.listingImageConfig - The listing image config
+ * @param {Array} props.listingVideos - The listing videos
  * @param {number} props.listingImageConfig.aspectWidth - The aspect width
  * @param {number} props.listingImageConfig.aspectHeight - The aspect height
  * @param {string} props.listingImageConfig.variantPrefix - The variant prefix
  * @returns {JSX.Element}
  */
 export const EditListingPhotosForm = props => {
+  const { listingVideos = [] } = props;
   const [state, setState] = useState({ imageUploadRequested: false });
+  const [assets, setAssets] = useState({});
   const [submittedImages, setSubmittedImages] = useState([]);
+
+  useEffect(() => {
+    const assetsObj = {};
+    listingVideos.forEach(item => {
+      assetsObj[item.id] = item.asset;
+    });
+
+    setAssets(assetsObj);
+
+  }, [listingVideos.length])
 
   const onImageUploadHandler = file => {
     const { listingImageConfig, onImageUpload } = props;
@@ -155,10 +171,48 @@ export const EditListingPhotosForm = props => {
   };
   const intl = useIntl();
 
+  const videoClipsText = (
+    <span className={css.chooseImageText}>
+      <span className={css.chooseImage}>
+        <FormattedMessage
+          id="EditListingPhotosForm.chooseVideoClip"
+          values={{ count: Object.keys(assets).length + 1 }}
+        />
+      </span>
+      <span className={css.imageDimension}>
+        <FormattedMessage id="EditListingPhotosForm.videoClipDimension" />
+      </span>
+      <span className={css.imageTypes}>
+        <FormattedMessage id="EditListingPhotosForm.videoClipSize" />
+      </span>
+    </span>
+  );
+
+  const submitHandler = values => {
+    const {listingVideos, ...restValues} = values;
+    const normalizedListingVideos = listingVideos
+      ? listingVideos.map(item => {
+          return {
+            ...item,
+            asset: assets[item.id],
+          };
+        })
+      : [];
+
+    const updatePublicData = {
+      publicData: {
+        listingVideos: normalizedListingVideos,
+      },
+    };
+
+    props.onSubmit({ ...restValues, ...updatePublicData });
+  };
+
   return (
     <FinalForm
       {...props}
       mutators={{ ...arrayMutators }}
+      onSubmit={submitHandler}
       render={formRenderProps => {
         const {
           form,
@@ -178,7 +232,7 @@ export const EditListingPhotosForm = props => {
           listingImageConfig,
         } = formRenderProps;
 
-        const images = values.images;
+        const images = values.images ?? [];
         const { aspectWidth = 1, aspectHeight = 1, variantPrefix } = listingImageConfig;
 
         const { publishListingError, showListingsError, updateListingError, uploadImageError } =
@@ -200,6 +254,37 @@ export const EditListingPhotosForm = props => {
         const imagesError = touched.images && errors?.images && errors.images[ARRAY_ERROR];
 
         const classes = classNames(css.root, className);
+
+        const uploadVideoWidget = (e, form) => {
+          e.preventDefault();
+          if (typeof window !== 'undefined') {
+            window.cloudinary.openUploadWidget(
+              {
+                cloudName: 'mahuwo',
+                uploadPreset: 'mahuwo',
+                maxVideoFileSize: 100000000,
+                resourceType: 'video',
+                maxFiles: 5 - Object.keys(assets).length || 5,
+                allowedFormats: ['mp4'],
+              },
+              (error, result) => {
+                if (result && result.info && result.info.secure_url) {
+                  const index = Object.keys(assets)?.length || 0;
+                  const uniqId = `listingVideos[${index}]`;
+                  const listingVideoIds = Object.keys(assets).map((_, index) => ({
+                    id: `listingVideos[${index}]`,
+                  }));
+                  form.change('listingVideos', [...listingVideoIds, { id: uniqId }]);
+
+                  setAssets({
+                    ...assets,
+                    [uniqId]: { url: result.info.secure_url, type: result.info.resource_type },
+                  });
+                }
+              }
+            );
+          }
+        };
 
         return (
           <Form
@@ -280,6 +365,62 @@ export const EditListingPhotosForm = props => {
 
             <PublishListingError error={publishListingError} />
             <ShowListingsError error={showListingsError} />
+
+            <h3>動画</h3>
+            <div>
+              <div className={css.videoClipWrapper}>
+                {assets
+                  ? Object.keys(assets).map((item, index) => (
+                    <div key={index}>
+                      <div className={css.pictureContainer}>
+                        <video src={assets[item].url} controls width="100%">
+                          <source
+                            src={assets[item].url}
+                            type={`video/${getExtensionFromUrl(assets[item].url)}`}
+                          />
+                        </video>
+
+                        <RemoveVideoButton
+                          onClick={e => {
+                            e.preventDefault();
+                            const updatedAssets = omit(assets, item);
+                            const squenceAssets = Object.keys(updatedAssets).map(
+                              (item, index) => updatedAssets[item]
+                            );
+                            const upAssets = squenceAssets.reduce(
+                              (obj, item, index) => ({
+                                ...obj,
+                                [`listingVideos[${index}]`]: item,
+                              }),
+                              {}
+                            );
+
+                            const listingVideoIds = Object.keys(
+                              updatedAssets
+                            ).map((_, index) => ({ id: `listingVideos[${index}]` }));
+                            form.change('listingVideos', listingVideoIds);
+                            setAssets(upAssets);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                  : null}
+
+                {Object.keys(assets).length < 5 && (
+                  <div
+                    onClick={e => {
+                      uploadVideoWidget(e, form);
+                    }}
+                    className={css.addVideoWrapper}
+                  >
+                    <div className={css.aspectRatioWrapper}>
+                      <label className={css.addImage}>{videoClipsText}</label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
             <Button
               className={css.submitButton}

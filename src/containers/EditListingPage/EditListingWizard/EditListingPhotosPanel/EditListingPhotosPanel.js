@@ -59,6 +59,8 @@ const EditListingPhotosPanel = props => {
   const classes = classNames(rootClass, className);
   const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
 
+  const listingVideos = listing.attributes.publicData.listingVideos;
+
   return (
     <div className={classes}>
       <H3 as="h1">
@@ -81,6 +83,7 @@ const EditListingPhotosPanel = props => {
         fetchErrors={errors}
         initialValues={getInitialValues(props)}
         onImageUpload={onImageUpload}
+        listingVideos={listingVideos}
         onSubmit={values => {
           const { addImage, ...updateValues } = values;
           onSubmit(updateValues);

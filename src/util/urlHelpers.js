@@ -249,3 +249,8 @@ export const twitterPageURL = twitterHandle => {
   }
   return null;
 };
+
+export const getExtensionFromUrl = url => {
+  const regex = /.+\.([^?]+)(\?|$)/;
+  return url.match(regex)[1];
+};

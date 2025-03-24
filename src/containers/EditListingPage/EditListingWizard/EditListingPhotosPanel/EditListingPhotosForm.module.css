@@ -159,3 +159,71 @@
     margin-top: 100px;
   }
 }
+
+.addVideoWrapper {
+  float: left;
+  position: relative;
+  width: 350px;
+  aspect-ratio: 1920 / 1080;
+  margin-bottom: 24px;
+  overflow: hidden;
+
+  &::after {
+    content: '.';
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}
+
+/* Firefox doesn't support image aspect ratio inside flexbox */
+.aspectRatioWrapper {
+  /* padding-bottom: calc(100% * (2 / 3)); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.addImage {
+  /* Layout */
+  /* Maintain aspect ratio */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+
+  background: #EBEBEB;
+  border: 1px solid #6E6F71;
+
+  /* Behaviour */
+  cursor: pointer;
+  transition: var(--transitionStyleButton);
+
+  &:hover {
+    border-color: var(--matterColorAnti);
+  }
+}
+
+.pictureContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+
+  @media (--viewportLarge) {
+    width: 350px;
+    margin: 0 auto;
+  }
+}
+
+.videoClipWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px 20px;
+  margin-bottom: 32px;
+}
