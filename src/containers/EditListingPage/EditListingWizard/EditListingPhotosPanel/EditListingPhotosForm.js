@@ -124,6 +124,7 @@ const FieldListingImage = props => {
  * @param {boolean} props.updated - Whether the form is updated
  * @param {boolean} props.updateInProgress - Whether the update is in progress
  * @param {Object} props.fetchErrors - The fetch errors object
+ * @param {Object} props.initialValues - The initial values object
  * @param {propTypes.error} props.fetchErrors.publishListingError - The publish listing error
  * @param {propTypes.error} props.fetchErrors.showListingsError - The show listings error
  * @param {propTypes.error} props.fetchErrors.uploadImageError - The upload image error
@@ -189,14 +190,14 @@ export const EditListingPhotosForm = props => {
   );
 
   const submitHandler = values => {
-    const {listingVideos, ...restValues} = values;
+    const { listingVideos, ...restValues } = values;
     const normalizedListingVideos = listingVideos
       ? listingVideos.map(item => {
-          return {
-            ...item,
-            asset: assets[item.id],
-          };
-        })
+        return {
+          ...item,
+          asset: assets[item.id],
+        };
+      })
       : [];
 
     const updatePublicData = {
@@ -213,6 +214,10 @@ export const EditListingPhotosForm = props => {
       {...props}
       mutators={{ ...arrayMutators }}
       onSubmit={submitHandler}
+      initialValues={{
+        ...props.initialValues,
+        listingVideos: props.listingVideos
+      }}
       render={formRenderProps => {
         const {
           form,
