@@ -84,6 +84,7 @@ import SectionGallery from './SectionGallery';
 import CustomListingFields from './CustomListingFields';
 
 import css from './ListingPage.module.css';
+import SectionVideos from './SectionVideos.js';
 
 const MIN_LENGTH_FOR_LONG_WORDS_IN_TITLE = 16;
 
@@ -203,7 +204,7 @@ export const ListingPageComponent = props => {
   const isOwnListing =
     userAndListingAuthorAvailable && currentListing.author.id.uuid === currentUser.id.uuid;
 
-  const { listingType, transactionProcessAlias, unitType } = publicData;
+  const { listingType, transactionProcessAlias, unitType, listingVideos } = publicData;
   if (!(listingType && transactionProcessAlias && unitType)) {
     // Listing should always contain listingType, transactionProcessAlias and unitType)
     return (
@@ -350,6 +351,7 @@ export const ListingPageComponent = props => {
               </H4>
             </div>
             <SectionTextMaybe text={description} showAsIngress />
+            <SectionVideos videos={listingVideos} />
 
             <CustomListingFields
               publicData={publicData}
